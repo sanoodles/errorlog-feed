@@ -76,23 +76,22 @@ define("LOG_DATE_FORMAT", "d-M-Y H:i:s");
 define("TIMEZONE", "Europe/Madrid");
 
 // @subsection optional settings
-    define("FEED_TITLE", "error_log feed demo");
-    define("FEED_DESCRIPTION", "This is a demo of error_log feed");
-    define("STYLESHEET", ""); // stylesheet path, if any
+define("FEED_TITLE", "error_log feed demo");
+define("FEED_DESCRIPTION", "This is a demo of error_log feed");
+define("STYLESHEET", ""); // stylesheet path, if any
     
 /* @subsection expert settings 
  * don't change them unless you know what are you doing!
  */
-    define("DEBUG_MODE", false);
-    define("ELF_NAME", "errorlogfeed.php");
-    define("ELF_URI", ABS_ELF_DIR . ELF_NAME);
-    define("FILE_PREFIX", " in ");
-    define("LINE_PREFIX", " on line ");
-    define("READ_LIMIT", 256 * 1024); // in bytes. default: 256 KB
+define("DEBUG_MODE", false);
+define("ELF_NAME", "errorlogfeed.php");
+define("ELF_URI", ABS_ELF_DIR . ELF_NAME);
+define("FILE_PREFIX", " in ");
+define("LINE_PREFIX", " on line ");
+define("READ_LIMIT", 256 * 1024); // in bytes. default: 256 KB
 
 /**
  *   internal functions calls tree
- *   by being a function appears on the function browser of the editor
  *
  *   do_actions
  *       file_delete
@@ -120,7 +119,7 @@ function test($v)
 }
 
 /**
- * @pre $v is a date in "M" PHP date format
+ * @param string $v is a date in "M" PHP date format
  * @return a date in "m" PHP date format
  * @see http://www.php.net/date
  */
@@ -187,7 +186,7 @@ function dates_interconv($date_format1, $date_format2, $date_str)
 }
 
 /**
- * @pre $error is a string which starts with a date between "[" and "]"
+ * @param string $error starts with a date between "[" and "]"
  * @return the date between "[" and "]" in valid RDF date format
  * @example error_get_date("[08-Jan-2007 17:09:55]") outputs "2007-01-08T17:09:55+01:00"
  * @see http://validator.w3.org/feed/docs/error/InvalidW3CDTFDate.html
@@ -217,8 +216,7 @@ function error_get_script($error)
 }
 
 /**
- * @param string error
- * @pre error is a string which starts with a date between "[" and "]"
+ * @param string error starts with a date between "[" and "]"
  *   eg: "[08-Jan-2007 17:09:55]"
  * @return array of two positions:
  *  "date": the date at the beginning of the line
@@ -244,8 +242,7 @@ function error_split($error)
 }
 
 /**
- * @param string dir
- * @pre the format of $dir is:
+ * @param string dir. format:
  *   "" for the own error_log feed directory
  *   "../" for the error_log feed parent directory
  *   "a/" for a subdirectory of the error_log feed directory called "a"
