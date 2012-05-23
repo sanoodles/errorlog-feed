@@ -33,25 +33,26 @@
  * 3. expert settings
  */
 
-// @subsection required settings
-
+/**
+ *  @subsection required settings
+ */
+ 
 /* site url
- * not very useful for now
  * @example "http://www.example.com/"
  */
 define("SITE_URL", "http://www.example.com/");
 
 /* absolute error_log feed directory
- * this directory should be not public since error_log feed allows to delete error_log files
+ * this directory should be not public (eg protected by a password) 
+ * since error_log feed allows to delete error_log files
  * @example "https://www.example.com/admin/"
  */
-define("ABS_ELF_DIR",
-       "http://www.islabinaria.com/samu/errorlogfeed/demo/");
+define("ABS_ELF_DIR", "http://localhost/errorlog-feed/");
 
 /* relative path from ABS_ELF_DIR to start the scan for error_log files
- * @example "./", "../", "a_subdir/", "../a_brotherdir", ...
+ * @example "./", "../", "a_subdir/", "../a_brotherdir/", ...
  */
-define("REL_START_DIR", "./");
+define("REL_START_DIR", "../test/");
 
 /* name of the error_log files
  * @example "error_log" (linux default), "error.log" (windows default), ...
@@ -75,20 +76,30 @@ define("LOG_DATE_FORMAT", "d-M-Y H:i:s");
  */
 define("TIMEZONE", "Europe/Madrid");
 
-// @subsection optional settings
+
+
+/**
+ * @subsection optional settings
+ */
 define("FEED_TITLE", "error_log feed demo");
 define("FEED_DESCRIPTION", "This is a demo of error_log feed");
 define("STYLESHEET", ""); // stylesheet path, if any
     
-/* @subsection expert settings 
+/**
+ * @subsection expert settings 
  * don't change them unless you know what are you doing!
  */
 define("DEBUG_MODE", false);
-define("ELF_NAME", "errorlogfeed.php");
+define("ELF_NAME", "errorlog-feed.php");
 define("ELF_URI", ABS_ELF_DIR . ELF_NAME);
 define("FILE_PREFIX", " in ");
 define("LINE_PREFIX", " on line ");
 define("READ_LIMIT", 256 * 1024); // in bytes. default: 256 KB
+
+if (DEBUG_MODE) {
+    ini_set("display_errors", 1);
+    ini_set("error_reporting", E_ALL | E_STRICT);
+}
 
 /**
  *   internal functions calls tree
@@ -155,8 +166,9 @@ function Mtom($v)
  */
 function dates_interconv($date_format1, $date_format2, $date_str)
 {
-    $base_struc     = split('[:/.\ \-]', $date_format1);
-    $date_str_parts = split('[:/.\ \-]', $date_str );
+    // the combo "explode(str_replace())" replaces the deprecated "split()" function
+    $base_struc = explode(" ", str_replace(array(":", "/", ".", "-"), " ", $date_format1));
+    $date_str_parts = explode(" ", str_replace(array(":", "/", ".", "-"), " ", $date_str));
 
     $date_elements = array();
 
@@ -373,7 +385,7 @@ function errors_get_all()
             $fs = filesize($el_path);
             $fskb = ceil($fs / 1024);
             if (DEBUG_MODE) {
-                test ($el_path.": ".$fskb." KB");
+                test ($el_path . ": " . $fskb . " KB");
             }
 
             if (($bytes_read_c + $fs) <= READ_LIMIT) {
@@ -456,8 +468,8 @@ function rdf_items($errors)
     reset($errors);
     for ($i = 0; $i < count($errors); $i++) {
 
-        $uri = SITE_URL."#".sprintf("%05s", $i);
-        $title = "#".sprintf("%'_5s", $i);
+        $uri = SITE_URL . "#" . sprintf("%05s", $i);
+        $title = "#" . sprintf("%'_5s", $i);
         $split = error_split($errors[$i]);
         $date = $split["date"];
         $description = $split["description"];
@@ -474,7 +486,7 @@ function rdf_items($errors)
 
 function file_delete()
 {
-    $path = $_GET["path"].LOG_NAME;
+    $path = $_GET["path"] . LOG_NAME;
     if (file_exists($path)) {
         unlink($path);
     }
@@ -483,8 +495,9 @@ function file_delete()
 function do_actions()
 {
     // delete
-    if ($_GET["a"] == "del") {
+    if (isset($_GET["a"]) && $_GET["a"] == "del") {
         file_delete();
+        header("Location: " . ELF_NAME);
     }
 }
 
@@ -520,8 +533,8 @@ function main()
     // XML HEADER
     echo "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
     if (STYLESHEET != "") {
-        echo "<?xml-stylesheet".
-             " href=\"".STYLESHEET."\" type=\"text/css\"?>\n";
+        echo "<?xml-stylesheet" .
+             " href=\"" . STYLESHEET . "\" type=\"text/css\"?>\n";
     }
 
     do_actions();
@@ -534,7 +547,7 @@ function main()
     xmlns="http://purl.org/rss/1.0/">
 <?php
     // get lines
-    $errors=errors_get_all();
+    $errors = errors_get_all();
 
     // print channel
     rdf_channel($errors);
