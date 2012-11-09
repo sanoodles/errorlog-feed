@@ -27,7 +27,7 @@
 */
 
 /**
- * @section setings
+ * @section settings
  * 1. required settings
  * 2. optional settings
  * 3. expert settings
